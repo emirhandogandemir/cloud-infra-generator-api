@@ -16,6 +16,8 @@ github.com/aws/aws-sdk-go-v2/service/costexplorer v1.25.10 h1:BrQNqm9MLxp+QQPpao
 github.com/aws/aws-sdk-go-v2/service/costexplorer v1.25.10/go.mod h1:DBcG2/cpN8VRFg0682vRkx/cnxvhZ4AIivUXI0VMAyY=
 github.com/aws/aws-sdk-go-v2/service/ec2 v1.97.0 h1:glGFVlA0MVrOpDF+KsVZZA/QCwykYPanYMW0DoIJN34=
 github.com/aws/aws-sdk-go-v2/service/ec2 v1.97.0/go.mod h1:L3ZT0N/vBsw77mOAawXmRnREpEjcHd2v5Hzf7AkIH8M=
+github.com/aws/aws-sdk-go-v2/service/eks v1.27.12 h1:eKidf2ebtleLtH67x02syhO9t3FItv9a7/ep9KC3TAM=
+github.com/aws/aws-sdk-go-v2/service/eks v1.27.12/go.mod h1:ZoyBDE311XYRiJpofw4jorVH2u+UhFpzfkrxF3aWu0U=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.27 h1:0iKliEXAcCa2qVtRs7Ot5hItA2MsufrphbRFlz1Owxo=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.27/go.mod h1:EOwBD4J4S5qYszS5/3DpkejfuK+Z5/1uzICfPaZLtqw=
 github.com/aws/aws-sdk-go-v2/service/sso v1.12.10 h1:UBQjaMTCKwyUYwiVnUt6toEJwGXsLBI6al083tpjJzY=

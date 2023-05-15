@@ -10,7 +10,7 @@ func main() {
 	router := gin.Default()
 	router.GET("getbillingaws",controllers.GetBillingAwsHandler)
 	router.GET("/getvmlistaws",controllers.GetInstancesHandler)
-
+	router.POST("createeks",controllers.CreateKubernetesClusterAwsHandlers)
 	router.POST("/createvmaws",controllers.CreateInstanceHandlers)
 	router.GET("/getinstancetypesaws",controllers.GetInstanceTypeHandler)
 	// API sunucusunu başlatın

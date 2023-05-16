@@ -5,12 +5,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/costexplorer"
+	"github.com/aws/aws-sdk-go-v2/service/costexplorer/types"
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"time"
-	"github.com/aws/aws-sdk-go-v2/service/costexplorer/types"
 )
 
 func GetBillingAwsHandler(c *gin.Context) {

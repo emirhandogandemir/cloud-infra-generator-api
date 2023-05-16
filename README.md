@@ -19,11 +19,11 @@ go run main.go
 
 
 #Goals
-Tüm kaynakları görebilecegimiz bir dashboard vm sayımızızı vmIdlerimizi, kubernetes clusterımızın bilgilerini gibi ana ana ana sayfada tüm cloud providerlar için All resources sayfası koyulması
-/createaws endpointinde imageId alanı inputuna ihtiyacımız var
-/getinstancetypesaws array dönüyor onun içindekileri virtualMachines tabi koyup hem vmlistemizi hemde seçilebilecek ilerisi için imageTypesları alırız. İleride ImageIdlist diye de ekliyor olacagız
-/getbillingaws = buradada billgindeki start ve end tarihleri için boş olsada 2 alan girilecek bir alttaki method ile ay ay fatura tutarlarını dönüyor Billing sekmesi koyup oradan amazon ve azure fatura tutarlarının grafiklerini görüyor olacagız
-/getbillingazure => yukarıdaki ile aynı
-/createeks = 2 tane string input alanı gereklidir
-/createnodegroupaws endpointi için => 6 tane alana ihtiyacımız var
-/createvmazure => 6 tane string deger alacak alana ihtiyacımı var
+- Tüm kaynakları görebilecegimiz bir dashboard vm sayımızızı vmIdlerimizi, kubernetes clusterımızın bilgilerini gibi ana ana ana sayfada tüm cloud providerlar için All resources sayfası koyulması
+- /createaws endpointinde imageId alanı inputuna ihtiyacımız var
+- /getinstancetypesaws array dönüyor onun içindekileri virtualMachines tabi koyup hem vmlistemizi hemde seçilebilecek ilerisi için imageTypesları alırız. İleride ImageIdlist diye de ekliyor olacagız
+- /getbillingaws = buradada billgindeki start ve end tarihleri için boş olsada 2 alan girilecek bir alttaki method ile ay ay fatura tutarlarını dönüyor Billing sekmesi koyup oradan amazon ve azure fatura tutarlarının    grafiklerini görüyor olacagız
+- /getbillingazure => yukarıdaki ile aynı
+- /createeks = 2 tane string input alanı gereklidir
+- /createnodegroupaws endpointi için => 6 tane alana ihtiyacımız var
+- /createvmazure => 6 tane string deger alacak alana ihtiyacımı var

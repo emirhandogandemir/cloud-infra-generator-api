@@ -27,3 +27,4 @@ go run main.go
 - /createeks = 2 tane string input alanı gereklidir
 - /createnodegroupaws endpointi için => 6 tane alana ihtiyacımız var
 - /createvmazure => 6 tane string deger alacak alana ihtiyacımı var
+- azure-aws ortamlarının kubernetes cluster monitoringini saglamak pod sayıları nod sayıları gibi verileri

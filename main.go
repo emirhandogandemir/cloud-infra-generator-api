@@ -9,16 +9,7 @@ import (
 
 func main() {
 	router := gin.Default()
-	//router.GET("/getbillingaws",controllers.GetBillingAwsHandler)
-	//router.GET("/getvmlistaws",controllers.GetInstancesHandler)
-	//router.POST("/createeks",controllers.CreateKubernetesClusterAwsHandlers)
-	//router.POST("/createvmaws",controllers.CreateInstanceHandlers)
 	router.GET("/getinstancetypesaws",controllers.GetInstanceTypeHandler)
-	//router.POST("/createnodegroupaws",controllers.NodeGroupEksHandlers)
-	//router.POST("/createvmazure",controllers.CreateVmAzureInstanceHandlers)
-	//router.POST("/createaks",controllers.CreateKubernetesClusterAzureHandlers)
-	// API sunucusunu başlatın
-
 	routers.SetupUserRoutes(router)
 	routers.SetupVirtualMachinesRoutes(router)
 	routers.SetupKubernetesClusterRoutes(router)

@@ -7,10 +7,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
+	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
-	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 )
 
 func GetInstancesHandler(c *gin.Context) {
@@ -74,7 +74,7 @@ func GetInstanceTypeHandler(c *gin.Context){
 }
 
 
-func CreateInstanceHandlers (c *gin.Context){
+func CreateVmAwsInstanceHandlers (c *gin.Context){
 	var details models.VirtualMachine
 	if err := c.ShouldBindJSON(&details); err!=nil{
 		c.JSON(http.StatusBadRequest,gin.H{"Error : ":err.Error()})

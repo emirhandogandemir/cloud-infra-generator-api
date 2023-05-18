@@ -29,3 +29,6 @@ go run main.go
 - /createvmazure => 6 tane string deger alacak alana ihtiyacımı var
 - azure-aws ortamlarının kubernetes cluster monitoringini saglamak pod sayıları nod sayıları gibi verileri
 - secret tarafındaki strateji geliştirilecek
+
+![image](https://github.com/emirhandogandemir/cloud-infra-generator-api/assets/74687192/b3581b88-691a-42c1-9f29-41728a109c1f)
+

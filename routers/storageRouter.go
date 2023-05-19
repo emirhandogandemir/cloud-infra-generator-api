@@ -9,5 +9,7 @@ func SetupStorageRoutes(router *gin.Engine) {
 	storageGroup := router.Group("/storage")
 	{
 		storageGroup.POST("/createaws", controllers.CreateStorageAwsHandler)
+		storageGroup.GET("/getlistaws",controllers.ListStorageAwsHandler)
+		storageGroup.POST("/deleteaws",controllers.DeleteStorageAwsHandler)
 	}
 }

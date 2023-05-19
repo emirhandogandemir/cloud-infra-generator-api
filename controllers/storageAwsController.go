@@ -21,7 +21,7 @@ func CreateStorageAwsHandler(c *gin.Context) {
 
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
-		c.JSON(500, gin.H{"error": "Failed to create cluster: " + err.Error()})
+		c.JSON(500, gin.H{"error": "Failed to load configuration config: " + err.Error()})
 		return
 	}
 	cfg.Region="us-east-1"
@@ -31,7 +31,7 @@ func CreateStorageAwsHandler(c *gin.Context) {
 		Bucket: aws.String("my-bucket-emirhandgndmr51-bitirme2"),
 	})
 	if err != nil {
-		c.JSON(500, gin.H{"error": "Failed to create cluster: " + err.Error()})
+		c.JSON(500, gin.H{"error": "Failed to create bucket: " + err.Error()})
 		return
 	}
 
@@ -40,3 +40,45 @@ func CreateStorageAwsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, createBucketOutput)
 }
 
+func ListStorageAwsHandler(c *gin.Context) {
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		c.JSON(http.StatusBadRequest,gin.H{"Error : ":err.Error()})
+		return
+	}
+	cfg.Region="us-east-1"
+
+	client := s3.NewFromConfig(cfg)
+
+	listBucketsOutput, err := client.ListBuckets(context.TODO(), &s3.ListBucketsInput{})
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Failed to list storage s3 list: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, listBucketsOutput.Buckets)
+}
+
+func DeleteStorageAwsHandler(c *gin.Context) {
+	var params models.StorageAws
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		log.Fatalf("unable to load SDK config, %v", err)
+	}
+	cfg.Region="us-east-1"
+
+	client := s3.NewFromConfig(cfg)
+
+	bucketName := params.StorageName
+
+	_, err = client.DeleteBucket(context.TODO(), &s3.DeleteBucketInput{
+		Bucket: &bucketName,
+	})
+
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Deleted to bucket: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, bucketName)
+}

@@ -28,7 +28,9 @@ go run main.go
 - /createnodegroupaws endpointi için => 6 tane alana ihtiyacımız var
 - /createvmazure => 6 tane string deger alacak alana ihtiyacımı var
 - azure-aws ortamlarının kubernetes cluster monitoringini saglamak pod sayıları nod sayıları gibi verileri
-- secret tarafındaki strateji geliştirilecek
+- secret tarafındaki strateji geliştirilecek = user bazlı secret credentialsların dbde tutulması
+- Bucket S3 and blob storage endpoints=>
+- 
 
 ![image](https://github.com/emirhandogandemir/cloud-infra-generator-api/assets/74687192/b3581b88-691a-42c1-9f29-41728a109c1f)
 

@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
+	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -44,6 +45,7 @@ func GetDatabaseAwsHandler(c *gin.Context) {
 
 }
 func CreateDatabaseAwsHandler(c *gin.Context) {
+	var params models.DatabaseAws
 	cfg,err:= config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Could not load configuration": err.Error()})
@@ -53,21 +55,14 @@ func CreateDatabaseAwsHandler(c *gin.Context) {
 
 	rdsClient := rds.NewFromConfig(cfg)
 
-	dbInstanceIdentifier := "my-rds-instance"
-	dbInstanceClass := "db.t3.micro"
-	engine := "postgres"
-	masterUsername := "emirhan"
-	masterPassword := "dogandemir"
-	dbName := "mydatabase"
-
 	input := &rds.CreateDBInstanceInput{
-		DBInstanceIdentifier: &dbInstanceIdentifier,
-		DBInstanceClass:      &dbInstanceClass,
-		Engine:               &engine,
-		MasterUsername:       &masterUsername,
-		MasterUserPassword:   &masterPassword,
+		DBInstanceIdentifier: &params.DbInstanceIdentifier,
+		DBInstanceClass:      &params.DbInstanceClass,
+		Engine:               &params.Engine,
+		MasterUsername:       &params.MasterUsername,
+		MasterUserPassword:   &params.MasterPassword,
 		AllocatedStorage:     aws.Int32(20),
-		DBName:               &dbName,
+		DBName:               &params.DbName,
 		AvailabilityZone:     aws.String("us-east-1a"),
 		MultiAZ:              aws.Bool(false),
 	}
@@ -82,7 +77,7 @@ func CreateDatabaseAwsHandler(c *gin.Context) {
 
 	// Oluşturulan RDS örneği hakkında bilgileri alın
 	describeInput := &rds.DescribeDBInstancesInput{
-		DBInstanceIdentifier: &dbInstanceIdentifier,
+		DBInstanceIdentifier: &params.DbInstanceIdentifier,
 	}
 
 	describeOutput, err := rdsClient.DescribeDBInstances(context.Background(), describeInput)
@@ -105,6 +100,7 @@ func CreateDatabaseAwsHandler(c *gin.Context) {
 }
 
 func DeleteDatabaseAwsHandler(c *gin.Context) {
+	var params models.DatabaseAws
 	cfg,err:= config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Could not load configuration": err.Error()})
@@ -115,7 +111,7 @@ func DeleteDatabaseAwsHandler(c *gin.Context) {
 	rdsClient := rds.NewFromConfig(cfg)
 
 	input := &rds.DeleteDBInstanceInput{
-		DBInstanceIdentifier:      aws.String("my-rds-instance"), // Silinecek RDS veritabanının kimliği
+		DBInstanceIdentifier:      aws.String(params.DbInstanceIdentifier), // Silinecek RDS veritabanının kimliği
 		SkipFinalSnapshot:         bool(true), // Son anlık görüntü oluşturmadan doğrudan silme
 	}
 
@@ -128,6 +124,6 @@ func DeleteDatabaseAwsHandler(c *gin.Context) {
 
 	fmt.Println("RDS veritabanı başarıyla silindi!")
 
-	c.JSON(http.StatusOK,"deleted")
+	c.JSON(http.StatusOK,params.DbInstanceIdentifier)
 
 }

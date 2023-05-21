@@ -6,6 +6,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2021-06-01/postgresqlflexibleservers"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
 	"github.com/Azure/go-autorest/autorest/to"
+	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -53,7 +54,7 @@ func GetDatabaseAzureHandler(c *gin.Context) {
 }
 
 func CreateDatabaseAzureHandler(c *gin.Context) {
-
+	var params models.DatabaseAzure
 	ctx:=context.Background()
 
 	subscriptionID := "15608984-3c5b-41dc-9e79-5b17be37947a"
@@ -70,26 +71,21 @@ func CreateDatabaseAzureHandler(c *gin.Context) {
 	if err == nil{
 		fmt.Println("err şu anda boş gardaşım")
 	}
-	resourceGroup:="bitirme"
-	location:="eastus"
-	serverName:="postgresqlemirhanbitirme"
-
 	// PostgreSQL esnek sunucu istemci oluşturma
 	psqlClient := postgresqlflexibleservers.NewServersClient(subscriptionID)
 	psqlClient.Authorizer = authorizer
 
 	// PostgreSQL sunucusu için yapılandırma ayarları
 	serverProperties := postgresqlflexibleservers.ServerProperties{
-		AdministratorLogin:         to.StringPtr("emirhan"),
-		AdministratorLoginPassword: to.StringPtr("dogandemir"),
-		Version: postgresqlflexibleservers.ServerVersion("11"),
+		AdministratorLogin:         to.StringPtr(params.AdminName),
+		AdministratorLoginPassword: to.StringPtr(params.AdminPassword),
+		Version: postgresqlflexibleservers.ServerVersion(params.Version),
 		Storage: &postgresqlflexibleservers.Storage{
 			StorageSizeGB: to.Int32Ptr(128),
 		},
 	}
-
-	future, err := psqlClient.Create(ctx, resourceGroup, serverName, postgresqlflexibleservers.Server{
-		Location: to.StringPtr(location),
+	future, err := psqlClient.Create(ctx, params.ResourceGroup, params.ServerName, postgresqlflexibleservers.Server{
+		Location: to.StringPtr(params.Location),
 		ServerProperties: &serverProperties,
 		Sku: &postgresqlflexibleservers.Sku{
 			Name: to.StringPtr("Standard_D2s_v3"),
@@ -108,14 +104,14 @@ func CreateDatabaseAzureHandler(c *gin.Context) {
 		log.Fatalf("Failed to finish create server operation: %s", err)
 	}
 
-	fmt.Printf("Successfully created PostgreSQL server: %s", serverName)
+	fmt.Printf("Successfully created PostgreSQL server: %s", params.ServerName)
 
 	c.JSON(http.StatusOK,"Successfull created Postgresql Server")
 
 }
 
 func DeleteDatabaseAzureHandler(c *gin.Context) {
-
+ 	var params models.DatabaseAzure
 	ctx:=context.Background()
 
 	subscriptionID := "15608984-3c5b-41dc-9e79-5b17be37947a"
@@ -132,14 +128,11 @@ func DeleteDatabaseAzureHandler(c *gin.Context) {
 	if err == nil{
 		fmt.Println("err şu anda boş gardaşım")
 	}
-	resourceGroupName := "bitirme"
-	serverName := "postgresqlemirhanbitirme"
-
 
 	psqlClient := postgresqlflexibleservers.NewServersClient(subscriptionID)
 	psqlClient.Authorizer = authorizer
 
-	future, err := psqlClient.Delete(ctx, resourceGroupName, serverName)
+	future, err := psqlClient.Delete(ctx, params.ResourceGroup, params.ServerName)
 	if err != nil {
 		log.Fatalf("Failed to start delete server operation: %v", err)
 	}
@@ -149,6 +142,6 @@ func DeleteDatabaseAzureHandler(c *gin.Context) {
 		log.Fatalf("Failed to finish delete server operation: %v", err)
 	}
 
-	fmt.Printf("Successfully deleted PostgreSQL server: %s", serverName)
+	fmt.Printf("Successfully deleted PostgreSQL server: %s", params.ServerName)
 
 }

@@ -43,3 +43,91 @@ func GetDatabaseAwsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK,output.DBInstances)
 
 }
+func CreateDatabaseAwsHandler(c *gin.Context) {
+	cfg,err:= config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Could not load configuration": err.Error()})
+		return
+	}
+	cfg.Region="us-east-1"
+
+	rdsClient := rds.NewFromConfig(cfg)
+
+	dbInstanceIdentifier := "my-rds-instance"
+	dbInstanceClass := "db.t3.micro"
+	engine := "postgres"
+	masterUsername := "emirhan"
+	masterPassword := "dogandemir"
+	dbName := "mydatabase"
+
+	input := &rds.CreateDBInstanceInput{
+		DBInstanceIdentifier: &dbInstanceIdentifier,
+		DBInstanceClass:      &dbInstanceClass,
+		Engine:               &engine,
+		MasterUsername:       &masterUsername,
+		MasterUserPassword:   &masterPassword,
+		AllocatedStorage:     aws.Int32(20),
+		DBName:               &dbName,
+		AvailabilityZone:     aws.String("us-east-1a"),
+		MultiAZ:              aws.Bool(false),
+	}
+
+	createOutput, err := rdsClient.CreateDBInstance(context.Background(), input)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Failed to create instance Rds": err.Error()})
+		return
+	}
+
+	fmt.Printf("Created RDS instance: %s\n", *createOutput.DBInstance.DBInstanceIdentifier)
+
+	// Oluşturulan RDS örneği hakkında bilgileri alın
+	describeInput := &rds.DescribeDBInstancesInput{
+		DBInstanceIdentifier: &dbInstanceIdentifier,
+	}
+
+	describeOutput, err := rdsClient.DescribeDBInstances(context.Background(), describeInput)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Failed to describe instances RDS": err.Error()})
+		return
+	}
+
+	// RDS örneği hakkında bilgileri yazdırın
+	for _, instance := range describeOutput.DBInstances {
+		fmt.Printf("DB Instance ID: %s\n", *instance.DBInstanceIdentifier)
+		fmt.Printf("Engine: %s\n", *instance.Engine)
+		//fmt.Printf("Endpoint: %s\n", *instance.Endpoint.Address)
+		fmt.Printf("Status: %s\n", *instance.DBInstanceStatus)
+		fmt.Println("-----")
+	}
+
+	c.JSON(http.StatusOK,describeOutput.DBInstances)
+
+}
+
+func DeleteDatabaseAwsHandler(c *gin.Context) {
+	cfg,err:= config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Could not load configuration": err.Error()})
+		return
+	}
+	cfg.Region="us-east-1"
+
+	rdsClient := rds.NewFromConfig(cfg)
+
+	input := &rds.DeleteDBInstanceInput{
+		DBInstanceIdentifier:      aws.String("my-rds-instance"), // Silinecek RDS veritabanının kimliği
+		SkipFinalSnapshot:         bool(true), // Son anlık görüntü oluşturmadan doğrudan silme
+	}
+
+
+	// RDS veritabanını sil
+	_, err = rdsClient.DeleteDBInstance(context.TODO(), input)
+	if err != nil {
+		fmt.Println("Rds database silinirken bir hata meydana geldi")
+	}
+
+	fmt.Println("RDS veritabanı başarıyla silindi!")
+
+	c.JSON(http.StatusOK,"deleted")
+
+}

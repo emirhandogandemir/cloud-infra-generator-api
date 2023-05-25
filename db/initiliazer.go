@@ -20,5 +20,7 @@ func Connect()(*gorm.DB, error){
 	if err !=nil {
 		return nil,err
 	}
+
+	//conn.AutoMigrate(&models.User{})
 	return conn,nil
 }

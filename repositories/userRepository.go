@@ -1,23 +1,38 @@
 package repositories
 
 import (
+	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/db"
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
-	"gorm.io/gorm"
+
 )
 
-type UserRepository struct {
-	DB *gorm.DB
-}
+func CreateUser(user *models.User) (*models.User, error) {
+	db, err := db.Connect()
 
-func (r *UserRepository) CreateUser (user *models.User)error{
-	return r.DB.Create(user).Error
-}
-
-func(r *UserRepository) GetUserById(userId int64)(*models.User,error){
-	user:= &models.User{}
-	result := r.DB.First(user,userId)
-	if result.Error != nil{
-		return nil,result.Error
+	if err != nil {
+		return nil, err
 	}
-	return user,nil
+
+	result := db.Create(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return user, nil
+}
+
+func GetAllUser() ([]*models.User, error) {
+	db, err := db.Connect()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var users []*models.User
+	result := db.Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return users, nil
 }

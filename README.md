@@ -20,7 +20,30 @@ go run main.go
 - azure-aws ortamlarının kubernetes cluster monitoringini saglamak pod sayıları nod sayıları gibi verileri
 - secret tarafındaki strateji geliştirilecek = user bazlı secret credentialsların dbde tutulması
 - Bucket S3 and blob storage endpoints=>
-- 
+
+User Create Json =>localhost:7070/users/create
+`{
+  "username": "John Doe",
+  "email": "johndoe@example.com",
+  "password": "mypassword",
+  "aws_accesses": [
+    {
+      "accessKey": "accesskey1",
+      "secretKey": "secretkey1"
+    },
+    {
+      "accessKey": "accesskey2",
+      "secretKey": "secretkey2"
+    }
+  ]
+}`
+
+AwsAccess Create Json=> localhost:7070/awsaccess/create
+`{
+    "user_id":1,
+    "accessKey":"aedaedaed",
+    "secretKey":"aedaedad"
+}`
 
 ![image](https://github.com/emirhandogandemir/cloud-infra-generator-api/assets/74687192/b3581b88-691a-42c1-9f29-41728a109c1f)
 

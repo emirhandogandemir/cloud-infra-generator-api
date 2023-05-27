@@ -12,3 +12,6 @@ func CreateUser(user *models.User) (*models.User, error) {
 func GetAllUsers() ([]*models.User, error) {
 	return repositories.GetAllUser()
 }
+func GetUserById(userId int)(*models.User,error){
+	return repositories.GetUserById(userId)
+}

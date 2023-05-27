@@ -36,4 +36,17 @@ func GetAllUser() ([]*models.User, error) {
 
 	return users, nil
 }
+func GetUserById(userId int) (*models.User,error) {
+	db, err := db.Connect()
 
+	if err != nil {
+		return nil,err
+	}
+	var user models.User
+	result := db.Preload("AwsAccessModel").Preload("AzureAccessModel").First(&user,userId)
+	if result.Error != nil {
+		return nil,result.Error
+	}
+
+	return &user ,nil
+}

@@ -10,5 +10,6 @@ func SetupUserRoutes(router *gin.Engine) {
 	{
 		userGroup.GET("/get", controllers.GetAllUsers)
 		userGroup.POST("/create",controllers.CreateUser)
+		userGroup.GET("/users/:id",controllers.GetUserById)
 	}
 }

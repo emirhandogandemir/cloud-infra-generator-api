@@ -5,6 +5,7 @@ import (
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 func CreateUser(c *gin.Context) {
@@ -31,4 +32,17 @@ func GetAllUsers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": users})
+}
+func GetUserById(c *gin.Context){
+	userId:= c.Param("id")
+	id,err:= strconv.Atoi(userId)
+	if err != nil{
+		c.JSON(http.StatusBadRequest,gin.H{"message":"Invalid user ID"})
+	}
+	user,err:= services.GetUserById(id)
+	if err!=nil{
+		c.JSON(http.StatusNotFound,gin.H{"message":"User not found"})
+	}
+	c.JSON(http.StatusOK,user)
+
 }

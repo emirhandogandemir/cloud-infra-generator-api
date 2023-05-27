@@ -6,9 +6,9 @@ import (
 )
 
 func SetupAwsAccessRouter(router *gin.Engine) {
-	userGroup := router.Group("/awsaccess")
+	awsAccessGroup := router.Group("/awsaccess")
 	{
-		userGroup.GET("/get", controllers.GetAllUsers)
-		userGroup.POST("/create",controllers.CreateUser)
+		awsAccessGroup.GET("/get", controllers.GetAllAwsAccess)
+		awsAccessGroup.POST("/create",controllers.CreateAwsAccess)
 	}
 }

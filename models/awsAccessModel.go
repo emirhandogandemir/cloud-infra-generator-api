@@ -1,7 +1,10 @@
 package models
 
+import "gorm.io/gorm"
+
 type AwsAccessModel struct {
-	ID         uint32    `gorm:"primary_key;auto_increment" json:"id"`
+	gorm.Model
+	UserID uint `json:"user_id"`
 	AccessKey string `json:"accessKey"`
 	SecretKey string `json:"secretKey"`
 }

@@ -1,9 +1,12 @@
 package models
 
+import "gorm.io/gorm"
+
 type AzureAccessModel struct {
-	ID         uint32    `gorm:"primary_key;auto_increment" json:"id"`
+	gorm.Model
 	SubscriptionId string `json:"subscriptionId"`
 	TenantId string `json:"tenantId"`
 	ClientID string `json:"clientID"`
 	ClientSecret string `json:"clientSecret"`
+
 }

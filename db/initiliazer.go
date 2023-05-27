@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -21,6 +22,6 @@ func Connect()(*gorm.DB, error){
 		return nil,err
 	}
 
-	//conn.AutoMigrate(&models.User{})
+	conn.AutoMigrate(&models.User{},&models.AwsAccessModel{})
 	return conn,nil
 }

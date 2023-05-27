@@ -11,4 +11,8 @@ func SetupAzureAccessRouter(router *gin.Engine) {
 		azureAccessGroup.GET("/get", controllers.GetAllAzureAccess)
 		azureAccessGroup.POST("/create",controllers.CreateAzureAccess)
 	}
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> bdf4f6a4c5fdc179e298812ae1126a653e7b482e

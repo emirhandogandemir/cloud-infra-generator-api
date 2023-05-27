@@ -22,6 +22,6 @@ func Connect()(*gorm.DB, error){
 		return nil,err
 	}
 
-	conn.AutoMigrate(&models.User{},&models.AwsAccessModel{})
+	conn.AutoMigrate(&models.User{},&models.AwsAccessModel{},&models.AzureAccessModel{})
 	return conn,nil
 }

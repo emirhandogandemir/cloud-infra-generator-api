@@ -8,4 +8,5 @@ type User struct {
 	Email      string    `gorm:"size:100;not null;unique" json:"email,required"`
 	Password string `gorm:"not null" json:"password,required"`
 	AwsAccessModel []AwsAccessModel `json:"aws_accesses" gorm:"foreignkey:UserID"`
+	AzureAccessModel []AzureAccessModel `json:"azure_accesses" gorm:"foreignkey:UserID"`
 }

@@ -36,3 +36,4 @@ func GetAllUser() ([]*models.User, error) {
 
 	return users, nil
 }
+

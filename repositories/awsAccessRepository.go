@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/db"
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 )
@@ -34,4 +35,19 @@ func GetAllAwsAccess() ([]*models.AwsAccessModel, error) {
 	}
 
 	return awsAccessModel, nil
+}
+
+func GetByUserId(userId uint)([]*models.AwsAccessModel,error){
+	db, err := db.Connect()
+	if err != nil {
+		fmt.Println("getByUserIdye göre çekilirken hata oluştu")
+	}
+	var awsAccessModel []*models.AwsAccessModel
+	result := db.First(&awsAccessModel,userId)
+	if result.Error !=nil{
+		return nil,result.Error
+	}
+
+	return awsAccessModel,nil
+
 }

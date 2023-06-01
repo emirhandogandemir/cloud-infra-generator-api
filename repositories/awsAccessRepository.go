@@ -37,7 +37,7 @@ func GetAllAwsAccess() ([]*models.AwsAccessModel, error) {
 	return awsAccessModel, nil
 }
 
-func GetByUserId(userId uint)([]*models.AwsAccessModel,error){
+func GetByUserIdAws(userId uint)([]*models.AwsAccessModel,error){
 	db, err := db.Connect()
 	if err != nil {
 		fmt.Println("getByUserIdye göre çekilirken hata oluştu")

@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/db"
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 )
@@ -34,4 +35,19 @@ func GetAllAzureAccess() ([]*models.AzureAccessModel, error) {
 	}
 
 	return azureAccessModel, nil
+}
+
+func GetByUserIdAzure(userId uint)([]*models.AzureAccessModel,error){
+	db, err := db.Connect()
+	if err != nil {
+		fmt.Println("getByUserIdye göre çekilirken hata oluştu")
+	}
+	var azureAccessModel []*models.AzureAccessModel
+	result := db.First(&azureAccessModel,userId)
+	if result.Error !=nil{
+		return nil,result.Error
+	}
+
+	return azureAccessModel,nil
+
 }

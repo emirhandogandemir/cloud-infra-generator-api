@@ -1,8 +1,8 @@
 package models
 
 type VirtualMachineAzure struct {
- ResourcegroupName string `json:"clusterName"`
- VmName string `json:"clusterName"`
+ ResourceGroupName string `json:"resourceGroupName"`
+ VmName string `json:"vmName"`
  VmSize string `json:"vmSize"`
  AdminUsername string `json:"adminUsername"`
  AdminPassword string `json:"adminPassword""`

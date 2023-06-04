@@ -93,7 +93,6 @@ func GetInstanceTypeHandler(c *gin.Context){
 	if err != nil {
 		fmt.Println("Couldn't load default configuration.",err)
 	}
-	cfg.Region="us-east-1"
 
 	svc := ec2.NewFromConfig(cfg)
 

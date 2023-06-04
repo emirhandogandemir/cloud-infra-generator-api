@@ -8,8 +8,8 @@ import (
 func SetupStorageRoutes(router *gin.Engine) {
 	storageGroup := router.Group("/storage")
 	{
-		storageGroup.POST("/createaws", controllers.CreateStorageAwsHandler)
-		storageGroup.GET("/getlistaws",controllers.ListStorageAwsHandler)
-		storageGroup.POST("/deleteaws",controllers.DeleteStorageAwsHandler)
+		storageGroup.POST("/createaws/:userid", controllers.CreateStorageAwsHandler)
+		storageGroup.GET("/getlistaws/:userid",controllers.ListStorageAwsHandler)
+		storageGroup.POST("/deleteaws/:userid",controllers.DeleteStorageAwsHandler)
 	}
 }

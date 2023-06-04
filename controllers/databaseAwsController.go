@@ -5,34 +5,47 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
+	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/db"
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 func GetDatabaseAwsHandler(c *gin.Context) {
-	cfg,err:= config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Status load configuration error": err.Error()})
+	userId := c.Param("userid")
+	db,err := db.Connect()
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection failed"})
 		return
 	}
-	cfg.Region="us-east-1"
+	var user models.User
+	if err := db.Preload("AwsAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
 
-	// RDS istemcisini oluştur
+	if len(user.AwsAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "AWS Access not found for the user"})
+		return
+	}
+
+	awsAccess := user.AwsAccessModel[0]
+	ctx := context.Background()
+	cfg, err := config.LoadDefaultConfig(ctx,config.WithRegion("us-east-1"),config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(awsAccess.AccessKey,awsAccess.SecretKey,"")))
+	if err != nil {
+		fmt.Println("Couldn't load default configuration.",err)
+	}
+
 	client := rds.NewFromConfig(cfg)
-
-	// RDS veritabanlarını listeleyen sorguyu oluştur
 	input := &rds.DescribeDBInstancesInput{}
-
-	// RDS veritabanlarını al
 	output, err := client.DescribeDBInstances(context.TODO(), input)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Status error to access to RDS database": err.Error()})
 		return
 	}
 
-	// RDS veritabanlarını döngüyle gezerek bilgileri yazdır
 	for _, db := range output.DBInstances {
 		fmt.Println("DB Name:", aws.ToString(db.DBInstanceIdentifier))
 		fmt.Println("Engine:", aws.ToString(db.Engine))
@@ -45,14 +58,36 @@ func GetDatabaseAwsHandler(c *gin.Context) {
 
 }
 func CreateDatabaseAwsHandler(c *gin.Context) {
-	var params models.DatabaseAws
-	cfg,err:= config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Could not load configuration": err.Error()})
+	userId := c.Param("userid")
+	db,err := db.Connect()
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection failed"})
 		return
 	}
-	cfg.Region="us-east-1"
+	var user models.User
+	if err := db.Preload("AwsAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
 
+	if len(user.AwsAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "AWS Access not found for the user"})
+		return
+	}
+
+	awsAccess := user.AwsAccessModel[0]
+
+	var params models.DatabaseAws
+	if err := c.ShouldBindJSON(&params); err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"Error : ":err.Error()})
+		return
+	}
+
+	ctx := context.Background()
+	cfg, err := config.LoadDefaultConfig(ctx,config.WithRegion("us-east-1"),config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(awsAccess.AccessKey,awsAccess.SecretKey,"")))
+	if err != nil {
+		fmt.Println("Couldn't load default configuration.",err)
+	}
 	rdsClient := rds.NewFromConfig(cfg)
 
 	input := &rds.CreateDBInstanceInput{
@@ -100,23 +135,43 @@ func CreateDatabaseAwsHandler(c *gin.Context) {
 }
 
 func DeleteDatabaseAwsHandler(c *gin.Context) {
-	var params models.DatabaseAws
-	cfg,err:= config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Could not load configuration": err.Error()})
+	userId := c.Param("userid")
+	db,err := db.Connect()
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection failed"})
 		return
 	}
-	cfg.Region="us-east-1"
+	var user models.User
+	if err := db.Preload("AwsAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	if len(user.AwsAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "AWS Access not found for the user"})
+		return
+	}
+
+	awsAccess := user.AwsAccessModel[0]
+
+	var params models.DatabaseAws
+	if err := c.ShouldBindJSON(&params); err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"Error : ":err.Error()})
+		return
+	}
+	ctx := context.Background()
+	cfg, err := config.LoadDefaultConfig(ctx,config.WithRegion("us-east-1"),config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(awsAccess.AccessKey,awsAccess.SecretKey,"")))
+	if err != nil {
+		fmt.Println("Couldn't load default configuration.",err)
+	}
 
 	rdsClient := rds.NewFromConfig(cfg)
 
 	input := &rds.DeleteDBInstanceInput{
-		DBInstanceIdentifier:      aws.String(params.DbInstanceIdentifier), // Silinecek RDS veritabanının kimliği
-		SkipFinalSnapshot:         bool(true), // Son anlık görüntü oluşturmadan doğrudan silme
+		DBInstanceIdentifier:      aws.String(params.DbInstanceIdentifier),
+		SkipFinalSnapshot:         bool(true),
 	}
 
-
-	// RDS veritabanını sil
 	_, err = rdsClient.DeleteDBInstance(context.TODO(), input)
 	if err != nil {
 		fmt.Println("Rds database silinirken bir hata meydana geldi")

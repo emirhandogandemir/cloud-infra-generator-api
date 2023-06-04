@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/costexplorer"
 	"github.com/aws/aws-sdk-go-v2/service/costexplorer/types"
+	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/db"
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -14,6 +17,25 @@ import (
 )
 
 func GetBillingAwsHandler(c *gin.Context) {
+	userId := c.Param("userid")
+	db,err := db.Connect()
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection failed"})
+		return
+	}
+	var user models.User
+	if err := db.Preload("AwsAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	if len(user.AwsAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "AWS Access not found for the user"})
+		return
+	}
+
+	awsAccess := user.AwsAccessModel[0]
+
     var params models.BillingParamsAws
 
 	if err := c.ShouldBindQuery(&params); err != nil {
@@ -33,11 +55,11 @@ func GetBillingAwsHandler(c *gin.Context) {
 		params.Region= "us-east-1"
 	}
 
-	cfg, err := config.LoadDefaultConfig(context.Background())
+	ctx := context.Background()
+	cfg, err := config.LoadDefaultConfig(ctx,config.WithRegion("us-east-1"),config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(awsAccess.AccessKey,awsAccess.SecretKey,"")))
 	if err != nil {
-		log.Fatalf("unable to load SDK config, %v", err)
+		fmt.Println("Couldn't load default configuration.",err)
 	}
-	cfg.Region="us-east-1"
 	client := costexplorer.NewFromConfig(cfg)
 
 	resp, err := client.GetCostAndUsage(context.TODO(), &costexplorer.GetCostAndUsageInput{

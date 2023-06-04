@@ -8,7 +8,7 @@ import (
 func SetupBillingRoutes(router *gin.Engine) {
 	billingGroup := router.Group("/billing")
 	{
-		billingGroup.GET("/getbillingaws",controllers.GetBillingAwsHandler)
+		billingGroup.GET("/getbillingaws/:userid",controllers.GetBillingAwsHandler)
 		//billingGroup.POST("/createaks",controllers.CreateKubernetesClusterAzureHandlers)
 	}
 }

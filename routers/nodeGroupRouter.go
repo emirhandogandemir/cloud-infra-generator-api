@@ -6,8 +6,8 @@ import (
 )
 
 func SetupNodeGroupRoutes(router *gin.Engine) {
-	nodeGroupGroup := router.Group("/billing")
+	nodeGroupGroup := router.Group("/node")
 	{
-		nodeGroupGroup.POST("/createnodegroupaws",controllers.NodeGroupEksHandlers)
+		nodeGroupGroup.POST("/createnodegroupaws/:userid",controllers.NodeGroupEksHandlers)
 	}
 }

@@ -2,23 +2,49 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/eks"
 	"github.com/aws/aws-sdk-go-v2/service/eks/types"
+	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/db"
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 func CreateKubernetesClusterAwsHandlers (c *gin.Context){
-  var paramsKubernetes models.KubernetesParamsAws
-
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		c.JSON(500, gin.H{"error": "Error Loading Default Config: " + err.Error()})
+	userId:= c.Param("userid")
+	db,err := db.Connect()
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection failed"})
 		return
 	}
-	cfg.Region = "us-east-1"
+	var user models.User
+	if err := db.Preload("AwsAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
 
+	if len(user.AwsAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "AWS Access not found for the user"})
+		return
+	}
+
+	awsAccess := user.AwsAccessModel[0]
+
+  var paramsKubernetes models.KubernetesParamsAws
+
+	if err := c.ShouldBindJSON(&paramsKubernetes); err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"Error : ":err.Error()})
+		return
+	}
+
+	ctx := context.Background()
+	cfg, err := config.LoadDefaultConfig(ctx,config.WithRegion("us-east-1"),config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(awsAccess.AccessKey,awsAccess.SecretKey,"")))
+	if err != nil {
+		fmt.Println("Couldn't load default configuration.",err)
+	}
 	svc := eks.NewFromConfig(cfg)
 
 	params := &eks.CreateClusterInput{

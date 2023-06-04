@@ -8,9 +8,9 @@ import (
 func SetupVirtualMachinesRoutes(router *gin.Engine) {
 	virtualMachinesGroup := router.Group("/vm")
 	{
-		virtualMachinesGroup.POST("/createazure",controllers.CreateVmAzureInstanceHandlers)
+		virtualMachinesGroup.POST("/createazure/:userid",controllers.CreateVmAzureInstanceHandlers)
 		virtualMachinesGroup.POST("/createaws",controllers.CreateVmAwsInstanceHandlers)
 		virtualMachinesGroup.GET("/getlistaws",controllers.GetInstancesHandler)
-		virtualMachinesGroup.GET("/getlistazure",controllers.GetVmAzureInstanceHandlers)
+		virtualMachinesGroup.GET("/getlistazure/:userid",controllers.GetVmAzureInstanceHandlers)
 	}
 }

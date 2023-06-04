@@ -15,6 +15,7 @@ import (
 
 
 func CreateVmAzureInstanceHandlers (c *gin.Context) {
+	userId := c.Param("userid")
 	var details models.VirtualMachineAzure
 	if err := c.ShouldBindJSON(&details); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error : ": err.Error()})
@@ -22,7 +23,7 @@ func CreateVmAzureInstanceHandlers (c *gin.Context) {
 	}
 	ctx:=context.Background()
 
-	userId := uint(4) // Kullanıcının ID'sini burada belirtin
+	 // Kullanıcının ID'sini burada belirtin
 
 	db, err := db.Connect()
 
@@ -41,11 +42,6 @@ func CreateVmAzureInstanceHandlers (c *gin.Context) {
 	}
 
 	azureAccess := user.AzureAccessModel[0]
-
-	//subscriptionID := "15608984-3c5b-41dc-9e79-5b17be37947a"
-	//tenantID := "9b4786c5-38d8-4442-b63f-d2c8d41d0e95"
-	//clientID := "e2c85ab7-e254-43da-ad29-a4799f45f4fc"
-	//clientSecret := "f_A8Q~GYHeMSmJ-yImc_roVeVseNZ-zoe1I5KdBd"
 
 	config := auth.NewClientCredentialsConfig(azureAccess.ClientID,azureAccess.ClientSecret,azureAccess.TenantId)
 
@@ -110,21 +106,35 @@ func CreateVmAzureInstanceHandlers (c *gin.Context) {
 
 }
 func GetVmAzureInstanceHandlers (c *gin.Context) {
+	userId := c.Param("userid")
 	ctx:=context.Background()
 
-	subscriptionID := "15608984-3c5b-41dc-9e79-5b17be37947a"
-	tenantID := "9b4786c5-38d8-4442-b63f-d2c8d41d0e95"
-	clientID := "e2c85ab7-e254-43da-ad29-a4799f45f4fc"
-	clientSecret := "f_A8Q~GYHeMSmJ-yImc_roVeVseNZ-zoe1I5KdBd"
+	db, err := db.Connect()
 
-	config := auth.NewClientCredentialsConfig(clientID,clientSecret,tenantID)
+	if err != nil {
+		fmt.Println("db baglantısında sorun oluştu")
+	}
+	var user models.User
+	if err := db.Preload("AzureAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	if len(user.AzureAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Azure Access not found for the user"})
+		return
+	}
+
+	azureAccess := user.AzureAccessModel[0]
+
+	config := auth.NewClientCredentialsConfig(azureAccess.ClientID,azureAccess.ClientSecret,azureAccess.TenantId)
 
 	authorizer,err := config.Authorizer()
 	if err != nil{
 		c.JSON(http.StatusInternalServerError, gin.H{"Authentication Error ": err.Error()})
 		return
 	}
-	vmClient := compute.NewVirtualMachinesClient(subscriptionID)
+	vmClient := compute.NewVirtualMachinesClient(azureAccess.SubscriptionId)
 	vmClient.Authorizer = authorizer
 
 	filter:="resourceGroup eq 'bitirme'"

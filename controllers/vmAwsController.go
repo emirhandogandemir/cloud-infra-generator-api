@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
+	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/db"
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -14,13 +16,31 @@ import (
 )
 
 func GetInstancesHandler(c *gin.Context) {
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		fmt.Println("Couldn't load default configuration.", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "AWS yapılandırması yüklenirken hata oluştu"})
+	userId := c.Param("userid")
+	db,err := db.Connect()
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection failed"})
 		return
 	}
-	cfg.Region = "us-east-1"
+	var user models.User
+	if err := db.Preload("AwsAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	if len(user.AwsAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "AWS Access not found for the user"})
+		return
+	}
+
+	awsAccess := user.AwsAccessModel[0]
+
+	ctx := context.Background()
+	cfg, err := config.LoadDefaultConfig(ctx,config.WithRegion("us-east-1"),config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(awsAccess.AccessKey,awsAccess.SecretKey,"")))
+	if err != nil {
+		fmt.Println("Couldn't load default configuration.",err)
+	}
+	cfg.Region="us-east-1"
 
 	client := ec2.NewFromConfig(cfg)
 
@@ -49,12 +69,31 @@ func GetInstancesHandler(c *gin.Context) {
 
 }
 func GetInstanceTypeHandler(c *gin.Context){
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "AWS yapılandırması yüklenirken hata oluştu"})
+	userId := c.Param("userid")
+	db,err := db.Connect()
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection failed"})
 		return
 	}
-	cfg.Region = "us-east-1"
+	var user models.User
+	if err := db.Preload("AwsAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	if len(user.AwsAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "AWS Access not found for the user"})
+		return
+	}
+
+	awsAccess := user.AwsAccessModel[0]
+
+	ctx := context.Background()
+	cfg, err := config.LoadDefaultConfig(ctx,config.WithRegion("us-east-1"),config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(awsAccess.AccessKey,awsAccess.SecretKey,"")))
+	if err != nil {
+		fmt.Println("Couldn't load default configuration.",err)
+	}
+	cfg.Region="us-east-1"
 
 	svc := ec2.NewFromConfig(cfg)
 
@@ -75,12 +114,32 @@ func GetInstanceTypeHandler(c *gin.Context){
 
 
 func CreateVmAwsInstanceHandlers (c *gin.Context){
+	userId := c.Param("userid")
+	db,err := db.Connect()
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection failed"})
+		return
+	}
+	var user models.User
+	if err := db.Preload("AwsAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	if len(user.AwsAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "AWS Access not found for the user"})
+		return
+	}
+
+	awsAccess := user.AwsAccessModel[0]
+
 	var details models.VirtualMachine
 	if err := c.ShouldBindJSON(&details); err!=nil{
 		c.JSON(http.StatusBadRequest,gin.H{"Error : ":err.Error()})
 		return
 	}
-	cfg,err:= config.LoadDefaultConfig(context.TODO())
+	ctx := context.Background()
+	cfg, err := config.LoadDefaultConfig(ctx,config.WithRegion("us-east-1"),config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(awsAccess.AccessKey,awsAccess.SecretKey,"")))
 	if err != nil {
 		fmt.Println("Couldn't load default configuration.",err)
 	}

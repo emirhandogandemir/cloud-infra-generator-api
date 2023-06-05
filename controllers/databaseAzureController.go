@@ -6,6 +6,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2021-06-01/postgresqlflexibleservers"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
 	"github.com/Azure/go-autorest/autorest/to"
+	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/db"
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -14,14 +15,28 @@ import (
 
 func GetDatabaseAzureHandler(c *gin.Context) {
 
+	userId := c.Param("userid")
 	ctx:=context.Background()
 
-	subscriptionID := "15608984-3c5b-41dc-9e79-5b17be37947a"
-	tenantID := "9b4786c5-38d8-4442-b63f-d2c8d41d0e95"
-	clientID := "e2c85ab7-e254-43da-ad29-a4799f45f4fc"
-	clientSecret := "f_A8Q~GYHeMSmJ-yImc_roVeVseNZ-zoe1I5KdBd"
+	db, err := db.Connect()
 
-	config := auth.NewClientCredentialsConfig(clientID,clientSecret,tenantID)
+	if err != nil {
+		fmt.Println("db baglantısında sorun oluştu")
+	}
+	var user models.User
+	if err := db.Preload("AzureAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	if len(user.AzureAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Azure Access not found for the user"})
+		return
+	}
+
+	azureAccess := user.AzureAccessModel[0]
+
+	config := auth.NewClientCredentialsConfig(azureAccess.ClientID,azureAccess.ClientSecret,azureAccess.TenantId)
 
 	resourceGroupName:="bitirme"
 
@@ -33,7 +48,7 @@ func GetDatabaseAzureHandler(c *gin.Context) {
 	if err == nil{
 		fmt.Println("err şu anda boş gardaşım")
 	}
-	psqlClient := postgresqlflexibleservers.NewServersClient(subscriptionID)
+	psqlClient := postgresqlflexibleservers.NewServersClient(azureAccess.SubscriptionId)
 	psqlClient.Authorizer = authorizer
 
 	dbListResult, err := psqlClient.ListByResourceGroupComplete(ctx,resourceGroupName)
@@ -54,15 +69,30 @@ func GetDatabaseAzureHandler(c *gin.Context) {
 }
 
 func CreateDatabaseAzureHandler(c *gin.Context) {
+
 	var params models.DatabaseAzure
+	userId := c.Param("userid")
 	ctx:=context.Background()
 
-	subscriptionID := "15608984-3c5b-41dc-9e79-5b17be37947a"
-	tenantID := "9b4786c5-38d8-4442-b63f-d2c8d41d0e95"
-	clientID := "e2c85ab7-e254-43da-ad29-a4799f45f4fc"
-	clientSecret := "f_A8Q~GYHeMSmJ-yImc_roVeVseNZ-zoe1I5KdBd"
+	db, err := db.Connect()
 
-	config := auth.NewClientCredentialsConfig(clientID,clientSecret,tenantID)
+	if err != nil {
+		fmt.Println("db baglantısında sorun oluştu")
+	}
+	var user models.User
+	if err := db.Preload("AzureAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	if len(user.AzureAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Azure Access not found for the user"})
+		return
+	}
+
+	azureAccess := user.AzureAccessModel[0]
+
+	config := auth.NewClientCredentialsConfig(azureAccess.ClientID,azureAccess.ClientSecret,azureAccess.TenantId)
 
 	authorizer,err := config.Authorizer()
 	if err != nil{
@@ -71,11 +101,10 @@ func CreateDatabaseAzureHandler(c *gin.Context) {
 	if err == nil{
 		fmt.Println("err şu anda boş gardaşım")
 	}
-	// PostgreSQL esnek sunucu istemci oluşturma
-	psqlClient := postgresqlflexibleservers.NewServersClient(subscriptionID)
+
+	psqlClient := postgresqlflexibleservers.NewServersClient(azureAccess.SubscriptionId)
 	psqlClient.Authorizer = authorizer
 
-	// PostgreSQL sunucusu için yapılandırma ayarları
 	serverProperties := postgresqlflexibleservers.ServerProperties{
 		AdministratorLogin:         to.StringPtr(params.AdminName),
 		AdministratorLoginPassword: to.StringPtr(params.AdminPassword),
@@ -112,14 +141,28 @@ func CreateDatabaseAzureHandler(c *gin.Context) {
 
 func DeleteDatabaseAzureHandler(c *gin.Context) {
  	var params models.DatabaseAzure
+	userId := c.Param("userid")
 	ctx:=context.Background()
 
-	subscriptionID := "15608984-3c5b-41dc-9e79-5b17be37947a"
-	tenantID := "9b4786c5-38d8-4442-b63f-d2c8d41d0e95"
-	clientID := "e2c85ab7-e254-43da-ad29-a4799f45f4fc"
-	clientSecret := "f_A8Q~GYHeMSmJ-yImc_roVeVseNZ-zoe1I5KdBd"
+	db, err := db.Connect()
 
-	config := auth.NewClientCredentialsConfig(clientID,clientSecret,tenantID)
+	if err != nil {
+		fmt.Println("db baglantısında sorun oluştu")
+	}
+	var user models.User
+	if err := db.Preload("AzureAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	if len(user.AzureAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Azure Access not found for the user"})
+		return
+	}
+
+	azureAccess := user.AzureAccessModel[0]
+
+	config := auth.NewClientCredentialsConfig(azureAccess.ClientID,azureAccess.ClientSecret,azureAccess.TenantId)
 
 	authorizer,err := config.Authorizer()
 	if err != nil{
@@ -129,7 +172,7 @@ func DeleteDatabaseAzureHandler(c *gin.Context) {
 		fmt.Println("err şu anda boş gardaşım")
 	}
 
-	psqlClient := postgresqlflexibleservers.NewServersClient(subscriptionID)
+	psqlClient := postgresqlflexibleservers.NewServersClient(azureAccess.SubscriptionId)
 	psqlClient.Authorizer = authorizer
 
 	future, err := psqlClient.Delete(ctx, params.ResourceGroup, params.ServerName)

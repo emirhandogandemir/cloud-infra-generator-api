@@ -9,6 +9,8 @@ func SetupKubernetesClusterRoutes(router *gin.Engine) {
 	kubernetesClusterGroup := router.Group("/k8s")
 	{
 		kubernetesClusterGroup.POST("/createeks/:userid",controllers.CreateKubernetesClusterAwsHandlers)
-		//kubernetesClusterGroup.POST("/createaks",controllers.CreateKubernetesClusterAzureHandlers)
+		kubernetesClusterGroup.GET("/geteks/:userid",controllers.GetKubernetesClusterAwsHandlers)
+		kubernetesClusterGroup.POST("/deleteeks/:userid",controllers.DeleteKubernetesClusterAwsHandlers)
+		//kubernetesClusterGroup.POST("/createaks/:userid",controllers.CreateKubernetesClusterAzureHandlers)
 	}
 }

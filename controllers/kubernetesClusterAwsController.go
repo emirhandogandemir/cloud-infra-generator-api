@@ -72,3 +72,89 @@ func CreateKubernetesClusterAwsHandlers (c *gin.Context){
 	})
 
 }
+
+func GetKubernetesClusterAwsHandlers (c *gin.Context){
+	userId:= c.Param("userid")
+	db,err := db.Connect()
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection failed"})
+		return
+	}
+	var user models.User
+	if err := db.Preload("AwsAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	if len(user.AwsAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "AWS Access not found for the user"})
+		return
+	}
+
+	awsAccess := user.AwsAccessModel[0]
+
+	ctx := context.Background()
+	cfg, err := config.LoadDefaultConfig(ctx,config.WithRegion("us-east-1"),config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(awsAccess.AccessKey,awsAccess.SecretKey,"")))
+	if err != nil {
+		fmt.Println("Couldn't load default configuration.",err)
+	}
+	svc := eks.NewFromConfig(cfg)
+	resp, err := svc.ListClusters(context.Background(), &eks.ListClustersInput{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list clusters: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"clusters": resp.Clusters,
+	})
+
+
+}
+
+func DeleteKubernetesClusterAwsHandlers (c *gin.Context){
+
+	userId:= c.Param("userid")
+	db,err := db.Connect()
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection failed"})
+		return
+	}
+	var user models.User
+	if err := db.Preload("AwsAccessModel").First(&user, userId).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+		return
+	}
+
+	if len(user.AwsAccessModel) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "AWS Access not found for the user"})
+		return
+	}
+
+	awsAccess := user.AwsAccessModel[0]
+	var paramsKubernetes models.KubernetesParamsAws
+
+	if err := c.ShouldBindJSON(&paramsKubernetes); err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"Error : ":err.Error()})
+		return
+	}
+	ctx := context.Background()
+	cfg, err := config.LoadDefaultConfig(ctx,config.WithRegion("us-east-1"),config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(awsAccess.AccessKey,awsAccess.SecretKey,"")))
+	if err != nil {
+		fmt.Println("Couldn't load default configuration.",err)
+	}
+	svc := eks.NewFromConfig(cfg)
+	_, err = svc.DeleteCluster(context.Background(), &eks.DeleteClusterInput{
+		Name: &paramsKubernetes.ClusterName,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete cluster: " + err.Error()})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete cluster: " + err.Error()})
+		return
+	}
+
+
+}

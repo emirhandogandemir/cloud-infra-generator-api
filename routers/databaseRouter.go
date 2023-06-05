@@ -11,8 +11,8 @@ func SetupDatabaseRoutes(router *gin.Engine) {
 		databaseGroup.GET("/getdatabaseaws/:userid",controllers.GetDatabaseAwsHandler)
 		databaseGroup.POST("/createdatabaseaws/:userid",controllers.CreateDatabaseAwsHandler)
 		databaseGroup.POST("/deletedatabaseaws/:userid",controllers.DeleteDatabaseAwsHandler)
-		databaseGroup.GET("/getdatabaseazure",controllers.GetDatabaseAzureHandler)
-		databaseGroup.POST("/createdatabaseazure",controllers.CreateDatabaseAzureHandler)
-		databaseGroup.POST("/deletedatabaseazure",controllers.DeleteDatabaseAzureHandler)
+		databaseGroup.GET("/getdatabaseazure/:userid",controllers.GetDatabaseAzureHandler)
+		databaseGroup.POST("/createdatabaseazure/:userid",controllers.CreateDatabaseAzureHandler)
+		databaseGroup.POST("/deletedatabaseazure/:userid",controllers.DeleteDatabaseAzureHandler)
 	}
 }

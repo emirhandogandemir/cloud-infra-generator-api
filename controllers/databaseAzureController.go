@@ -56,21 +56,22 @@ func GetDatabaseAzureHandler(c *gin.Context) {
 		log.Fatalf("Failed to get database list: %v", err)
 	}
 
+	var dblist []postgresqlflexibleservers.Server
 	for dbListResult.NotDone() {
-		fmt.Println("Values", *dbListResult.Value().Name)
+		//fmt.Println("Values", *dbListResult.Value().Name)
+		db := dbListResult.Value()
+		dblist = append(dblist,db)
 		err = dbListResult.NextWithContext(ctx)
 		if err != nil {
 			log.Fatalf("Failed to get next server in list: %v", err)
 		}
 	}
 
-	c.JSON(http.StatusOK,dbListResult.NotDone())
+	c.JSON(http.StatusOK,dblist)
 
 }
 
 func CreateDatabaseAzureHandler(c *gin.Context) {
-
-	var params models.DatabaseAzure
 	userId := c.Param("userid")
 	ctx:=context.Background()
 
@@ -100,6 +101,11 @@ func CreateDatabaseAzureHandler(c *gin.Context) {
 	}
 	if err == nil{
 		fmt.Println("err şu anda boş gardaşım")
+	}
+	var params models.DatabaseAzure
+	if err := c.ShouldBindJSON(&params); err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"Error : ":err.Error()})
+		return
 	}
 
 	psqlClient := postgresqlflexibleservers.NewServersClient(azureAccess.SubscriptionId)
@@ -140,7 +146,6 @@ func CreateDatabaseAzureHandler(c *gin.Context) {
 }
 
 func DeleteDatabaseAzureHandler(c *gin.Context) {
- 	var params models.DatabaseAzure
 	userId := c.Param("userid")
 	ctx:=context.Background()
 
@@ -170,6 +175,11 @@ func DeleteDatabaseAzureHandler(c *gin.Context) {
 	}
 	if err == nil{
 		fmt.Println("err şu anda boş gardaşım")
+	}
+	var params models.DatabaseAzure
+	if err := c.ShouldBindJSON(&params); err!=nil{
+		c.JSON(http.StatusBadRequest,gin.H{"Error : ":err.Error()})
+		return
 	}
 
 	psqlClient := postgresqlflexibleservers.NewServersClient(azureAccess.SubscriptionId)

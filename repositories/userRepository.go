@@ -50,3 +50,16 @@ func GetUserById(userId int) (*models.User, error) {
 
 	return &user, nil
 }
+
+func FindUserByUserName(username string)(*models.User,error){
+	db,err := db.Connect()
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to the database: %w", err)
+	}
+	var user models.User
+	result := db.Where("username = ?", username).First(&user)
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to retrieve user: %w", result.Error)
+	}
+	return &user,nil
+}

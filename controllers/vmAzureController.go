@@ -19,44 +19,30 @@ func CreateVmAzureInstanceHandlers (c *gin.Context) {
 	var details models.VirtualMachineAzure
 	if err := c.ShouldBindJSON(&details); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error : ": err.Error()})
-		return
-	}
+		return}
 	ctx:=context.Background()
-
 	 // Kullanıcının ID'sini burada belirtin
-
 	db, err := db.Connect()
-
 	if err != nil {
 		fmt.Println("db baglantısında sorun oluştu")
 	}
 	var user models.User
 	if err := db.Preload("AzureAccessModel").First(&user, userId).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
-		return
-	}
-
+		return}
 	if len(user.AzureAccessModel) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Azure Access not found for the user"})
-		return
-	}
-
+		return}
 	azureAccess := user.AzureAccessModel[0]
-
 	config := auth.NewClientCredentialsConfig(azureAccess.ClientID,azureAccess.ClientSecret,azureAccess.TenantId)
-
 	authorizer,err := config.Authorizer()
 	if err != nil{
-		log.Fatal("Authorization hatası ,",err)
-	}
+		log.Fatal("Authorization hatası ,",err)}
 	if err == nil{
-		fmt.Println("err şu anda boş gardaşım")
-	}
+		fmt.Println("err şu anda boş gardaşım")}
 	vmClient := compute.NewVirtualMachinesClient(azureAccess.SubscriptionId)
 	vmClient.Authorizer = authorizer
-
 	nicId := "/subscriptions/15608984-3c5b-41dc-9e79-5b17be37947a/resourceGroups/bitirme/providers/Microsoft.Network/networkInterfaces/bitirme"
-
 	vmParameters := compute.VirtualMachine{
 		Location: &details.Location,
 		Name:     &details.VmName,

@@ -62,34 +62,25 @@ func CreateDatabaseAwsHandler(c *gin.Context) {
 	db,err := db.Connect()
 	if err != nil{
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database connection failed"})
-		return
-	}
+		return}
 	var user models.User
 	if err := db.Preload("AwsAccessModel").First(&user, userId).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
-		return
-	}
-
+		return}
 	if len(user.AwsAccessModel) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "AWS Access not found for the user"})
-		return
-	}
-
+		return}
 	awsAccess := user.AwsAccessModel[0]
 
 	var params models.DatabaseAws
 	if err := c.ShouldBindJSON(&params); err!=nil{
 		c.JSON(http.StatusBadRequest,gin.H{"Error : ":err.Error()})
-		return
-	}
-
+		return}
 	ctx := context.Background()
 	cfg, err := config.LoadDefaultConfig(ctx,config.WithRegion("us-east-1"),config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(awsAccess.AccessKey,awsAccess.SecretKey,"")))
 	if err != nil {
-		fmt.Println("Couldn't load default configuration.",err)
-	}
+		fmt.Println("Couldn't load default configuration.",err)}
 	rdsClient := rds.NewFromConfig(cfg)
-
 	input := &rds.CreateDBInstanceInput{
 		DBInstanceIdentifier: &params.DbInstanceIdentifier,
 		DBInstanceClass:      &params.DbInstanceClass,

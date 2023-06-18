@@ -1,17 +1,14 @@
 package controllers
 
 import (
+	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/models"
 	"github.com/emirhandogandemir/bitirmego/cloud-infra-rest1/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 func SignUp(c *gin.Context) {
-	var req struct {
-		Username string `json:"username"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+	var req models.Request
 	if err := c.Bind(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -25,10 +22,7 @@ func SignUp(c *gin.Context) {
 }
 
 func SignIn(c *gin.Context) {
-	var req struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
+	var req models.Request
 	if err := c.Bind(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

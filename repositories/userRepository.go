@@ -57,9 +57,8 @@ func FindUserByUserName(username string)(*models.User,error){
 		return nil, fmt.Errorf("failed to connect to the database: %w", err)
 	}
 	var user models.User
-	result := db.Where("username = ?", username).First(&user)
-	if result.Error != nil {
-		return nil, fmt.Errorf("failed to retrieve user: %w", result.Error)
+	if err := db.Where("username = ?", username).First(&user).Error; err != nil {
+		return nil, err
 	}
 	return &user,nil
 }

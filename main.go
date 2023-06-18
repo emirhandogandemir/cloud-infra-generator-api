@@ -19,6 +19,7 @@ func main() {
 	routers.SetupDatabaseRoutes(router)
 	routers.SetupAwsAccessRouter(router)
 	routers.SetupAzureAccessRouter(router)
+	routers.SetupAuthRoutes(router)
 	if err := router.Run(":7070"); err != nil {
 		fmt.Println("API sunucusu başlatılırken hata oluştu: " + err.Error())
 	}
